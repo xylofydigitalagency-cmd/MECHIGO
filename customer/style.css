@@ -1,0 +1,182 @@
+/* ============================================
+   MECHIGO — Customer App
+   Palette: Asphalt #14181C / Surface #1F252B / Safety Orange #FF5A1F
+            Off-White #F1EEE7 / Success #2FA84F / Danger #E23F3F
+   Type: Rajdhani (display) + Inter (body) + JetBrains Mono (data/ETA)
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap');
+
+:root {
+  --asphalt: #14181C;
+  --surface: #1F252B;
+  --surface-raised: #262D34;
+  --orange: #FF5A1F;
+  --orange-dim: #C2461A;
+  --off-white: #F1EEE7;
+  --muted: #8B929A;
+  --success: #2FA84F;
+  --danger: #E23F3F;
+  --border: #2E353D;
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--asphalt);
+  color: var(--off-white);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .display {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* App shell — mobile-first, capped for larger screens */
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Screens toggle via .hidden */
+.screen { flex: 1; display: flex; flex-direction: column; padding: 24px 20px 32px; }
+.hidden { display: none !important; }
+
+/* Top bar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px; border-bottom: 1px solid var(--border);
+}
+.brand { display: flex; align-items: center; gap: 8px; }
+.brand-mark {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--orange);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; color: var(--asphalt); font-size: 16px;
+}
+.brand-name { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: 0.02em; }
+
+/* Auth screen */
+.auth-hero { text-align: center; margin: 40px 0 32px; }
+.auth-hero h1 { font-size: 30px; line-height: 1.15; }
+.auth-hero p { color: var(--muted); margin-top: 10px; font-size: 15px; }
+
+.field-label { font-size: 13px; color: var(--muted); margin-bottom: 6px; display: block; }
+.phone-input-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.country-code {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 0 14px; color: var(--off-white); font-family: 'JetBrains Mono', monospace; font-size: 15px;
+  display: flex; align-items: center;
+}
+input[type="tel"], input[type="text"], input[type="email"] {
+  flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px; color: var(--off-white); font-size: 15px; font-family: 'Inter', sans-serif;
+}
+input:focus { outline: none; border-color: var(--orange); }
+
+.otp-row { display: flex; gap: 8px; margin-bottom: 20px; }
+.otp-digit {
+  width: 100%; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 20px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 0;
+  color: var(--off-white);
+}
+.otp-digit:focus { border-color: var(--orange); outline: none; }
+
+.btn {
+  width: 100%; border: none; border-radius: 12px; padding: 16px;
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: 0.03em;
+  cursor: pointer; transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--orange); color: var(--asphalt); }
+.btn-primary:hover { background: #FF6E38; }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); margin-top: 10px; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.helper-text { text-align: center; color: var(--muted); font-size: 13px; margin-top: 16px; }
+.helper-text a { color: var(--orange); text-decoration: none; cursor: pointer; }
+
+/* Home / Request screen */
+.status-strip {
+  display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted);
+  margin-bottom: 20px;
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+
+.problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0 26px; }
+.problem-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px 12px; text-align: center; cursor: pointer; transition: border-color 0.15s;
+}
+.problem-card.selected { border-color: var(--orange); background: var(--surface-raised); }
+.problem-card .icon { font-size: 24px; display: block; margin-bottom: 8px; }
+.problem-card .label { font-size: 13px; font-weight: 500; }
+
+.request-btn-wrap { margin-top: auto; padding-top: 20px; }
+.eta-note { text-align: center; font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+/* Signature element — Radar Ping locator, shown while searching for a mechanic */
+.radar-wrap {
+  display: flex; align-items: center; justify-content: center;
+  height: 220px; position: relative; margin: 20px 0;
+}
+.radar-ring {
+  position: absolute; border: 1.5px dashed var(--orange-dim); border-radius: 50%;
+  opacity: 0; animation: radar-pulse 2.4s ease-out infinite;
+}
+.radar-ring:nth-child(1) { width: 60px; height: 60px; animation-delay: 0s; }
+.radar-ring:nth-child(2) { width: 60px; height: 60px; animation-delay: 0.8s; }
+.radar-ring:nth-child(3) { width: 60px; height: 60px; animation-delay: 1.6s; }
+@keyframes radar-pulse {
+  0% { width: 60px; height: 60px; opacity: 0.9; }
+  100% { width: 220px; height: 220px; opacity: 0; }
+}
+.radar-pin {
+  position: relative; z-index: 2; width: 52px; height: 52px; border-radius: 50%;
+  background: var(--orange); display: flex; align-items: center; justify-content: center;
+  font-size: 22px; box-shadow: 0 0 0 6px rgba(255,90,31,0.12);
+}
+.radar-status { text-align: center; font-size: 15px; color: var(--muted); margin-top: 4px; }
+.radar-status .mono { color: var(--off-white); }
+
+@media (prefers-reduced-motion: reduce) {
+  .radar-ring { animation: none; opacity: 0.3; }
+}
+
+/* Mechanic match card */
+.mech-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px; display: flex; gap: 14px; align-items: center; margin-top: 18px;
+}
+.mech-avatar {
+  width: 48px; height: 48px; border-radius: 50%; background: var(--surface-raised);
+  display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+}
+.mech-info h3 { font-size: 16px; }
+.mech-info .rating { color: var(--muted); font-size: 13px; margin-top: 3px; }
+
+.sos-btn {
+  position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%;
+  background: var(--danger); color: white; border: none; font-family: 'Rajdhani', sans-serif;
+  font-weight: 700; font-size: 13px; box-shadow: 0 4px 14px rgba(226,63,63,0.4); cursor: pointer;
+}
+
+/* Pin-drop map picker */
+#pinDropOverlay { position: fixed; inset: 0; background: #fff; z-index: 1000; padding: 16px; overflow-y: auto; }
+#pinDropOverlay.hidden { display: none; }
+#pinDropMap { margin: 12px 0; border-radius: 8px; }
+.search-result { padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; color: #000; }
+.search-result:hover { background: #f5f5f5; }

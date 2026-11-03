@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mechigo — Gaari Kharab? Mechanic Bulao</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <div class="brand-name">Mechigo</div>
+    </div>
+    <div id="topbarStatus" class="mono" style="font-size:12px;color:var(--muted);"></div>
+  </div>
+
+  <!-- SCREEN 1: Phone number entry -->
+  <div id="screen-phone" class="screen">
+    <div class="auth-hero">
+      <h1>Gaari raste mein<br>kharab ho gayi?</h1>
+      <p>Enter your number — nearby mechanics honge ek tap mein.</p>
+    </div>
+
+    <label class="field-label">Mobile Number</label>
+    <div class="phone-input-row">
+      <div class="country-code">🇵🇰 +92</div>
+      <input type="tel" id="phoneInput" placeholder="300 1234567" maxlength="10">
+    </div>
+
+    <div id="recaptcha-container"></div>
+
+    <button class="btn btn-primary" id="sendOtpBtn">Send Code</button>
+    <p class="helper-text">By continuing you agree to Mechigo's Terms & Privacy Policy.</p>
+  </div>
+
+  <!-- SCREEN 2: OTP verification -->
+  <div id="screen-otp" class="screen hidden">
+    <div class="auth-hero">
+      <h1>Enter the code</h1>
+      <p>Sent via SMS to <span id="otpPhoneDisplay" class="mono"></span></p>
+    </div>
+
+    <div class="otp-row">
+      <input class="otp-digit" maxlength="1" inputmode="numeric">
+      <input class="otp-digit" maxlength="1" inputmode="numeric">
+      <input class="otp-digit" maxlength="1" inputmode="numeric">
+      <input class="otp-digit" maxlength="1" inputmode="numeric">
+      <input class="otp-digit" maxlength="1" inputmode="numeric">
+      <input class="otp-digit" maxlength="1" inputmode="numeric">
+    </div>
+
+    <button class="btn btn-primary" id="verifyOtpBtn">Verify & Continue</button>
+    <button class="btn btn-ghost" id="resendOtpBtn">Resend Code</button>
+  </div>
+
+  <!-- SCREEN 3: Home / Request Mechanic -->
+  <div id="screen-home" class="screen hidden">
+    <div class="status-strip">
+      <span class="dot"></span>
+      <span id="locationLabel">Detecting your location…</span>
+    </div>
+
+    <button class="btn btn-ghost" id="chooseOnMapBtn">Choose on map instead</button>
+    <button class="btn btn-ghost" id="myReviewsBtn">My Reviews</button>
+
+    <div id="pinDropOverlay" class="hidden">
+      <input type="text" id="pinSearchInput" placeholder="Search address (e.g. F-7 Markaz, Islamabad)" />
+      <div id="pinSearchResults"></div>
+      <a href="#" id="openGoogleMapsBtn" target="_blank" class="btn btn-ghost" style="display:block; text-align:center; text-decoration:none;">Can't find it? Search on Google Maps</a>
+      <input type="text" id="googleMapsLinkInput" placeholder="Paste the Google Maps link here to set exact pin" />
+      <div id="pinDropMap" style="height: 300px;"></div>
+      <button class="btn btn-primary" id="confirmPinBtn">Confirm this location</button>
+      <button class="btn btn-ghost" id="cancelPinBtn">Cancel</button>
+    </div>
+
+    <label class="field-label">Vehicle Type</label>
+    <select id="vehicleTypeInput">
+      <option value="Car">Car</option>
+      <option value="Bike">Bike</option>
+      <option value="Truck">Truck</option>
+      <option value="Loader Rickshaw">Loader Rickshaw</option>
+    </select>
+    <label class="field-label">Vehicle Model</label>
+    <input type="text" id="vehicleModelInput" placeholder="e.g. Honda Civic 2019">
+    <label class="field-label">Number Plate</label>
+    <input type="text" id="vehiclePlateInput" placeholder="e.g. ISB-2024">
+
+    <h2 style="font-size:22px; margin-top:16px;">What's wrong with your vehicle?</h2>
+
+    <div class="problem-grid" id="problemGrid">
+      <div class="problem-card" data-problem="Engine"><span class="icon">⚙️</span><span class="label">Engine</span></div>
+      <div class="problem-card" data-problem="Tire"><span class="icon">🛞</span><span class="label">Tire / Puncture</span></div>
+      <div class="problem-card" data-problem="Battery"><span class="icon">🔋</span><span class="label">Battery</span></div>
+      <div class="problem-card" data-problem="Petrol"><span class="icon">⛽</span><span class="label">Out of Petrol</span></div>
+      <div class="problem-card" data-problem="Tow"><span class="icon">🚛</span><span class="label">Car Towing</span></div>
+      <div class="problem-card" data-problem="Other"><span class="icon">🔧</span><span class="label">Other Issue</span></div>
+    </div>
+
+    <div id="petrolFields" class="hidden" style="margin-top:12px;">
+      <label class="field-label">How much petrol (Rs)?</label>
+      <input type="number" id="fuelAmountInput" placeholder="e.g. 1000">
+    </div>
+
+    <div id="towFields" class="hidden" style="margin-top:12px;">
+      <label class="field-label" style="display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="premiumTowInput" style="width:auto;"> Premium / AC car towing
+      </label>
+    </div>
+
+    <div id="fareEstimateBox" class="status-strip hidden" style="margin-top:12px;">
+      <span id="fareEstimateLabel">Estimated fare: —</span>
+    </div>
+
+    <div class="request-btn-wrap">
+      <button class="btn btn-primary" id="requestMechanicBtn" disabled>Request Mechanic</button>
+      <p class="eta-note">Cash payment on completion · Rated mechanics only</p>
+    </div>
+
+    <button class="sos-btn" id="sosBtn">SOS</button>
+  </div>
+
+  <!-- SCREEN 4: Searching (Radar Ping signature element) -->
+  <div id="screen-searching" class="screen hidden">
+    <h2 style="text-align:center; margin-top:20px;">Finding a mechanic near you</h2>
+
+    <div class="radar-wrap">
+      <div class="radar-ring"></div>
+      <div class="radar-ring"></div>
+      <div class="radar-ring"></div>
+      <div class="radar-pin">🔧</div>
+    </div>
+
+    <p class="radar-status">Searching · <span class="mono" id="searchTimer">00:00</span></p>
+    <p class="radar-status">Current offer: Rs <span class="mono" id="currentFareDisplay">0</span></p>
+    <button class="btn btn-ghost" id="bumpFareBtn">+5% Raise Offer</button>
+
+    <div id="counterOfferBox" class="ticket hidden" style="margin-top:16px;">
+      <div class="ticket-id mono">MECHANIC OFFER</div>
+      <div class="ticket-problem">A mechanic proposed Rs <span id="counterOfferAmount" class="mono">0</span></div>
+      <div class="ticket-actions">
+        <button class="btn btn-accept" id="approveCounterBtn">Approve</button>
+        <button class="btn btn-reject" id="rejectCounterBtn">Reject</button>
+      </div>
+    </div>
+
+    <button class="btn btn-ghost" id="cancelRequestBtn" style="margin-top:32px;">Cancel Request</button>
+  </div>
+
+  <!-- SCREEN 5: Matched mechanic -->
+  <div id="screen-matched" class="screen hidden">
+    <h2>Mechanic on the way</h2>
+    <div class="mech-card">
+      <div class="mech-avatar">👤</div>
+      <div class="mech-info">
+        <h3 id="matchedMechName">Mechanic Name</h3>
+        <div class="rating">⭐ <span id="matchedMechRating">4.8</span> · <span id="matchedMechEta">8 min away</span></div>
+      </div>
+    </div>
+    <div id="trackingMap" style="height: 260px; margin-top: 16px; border-radius: 8px;"></div>
+    <button class="btn btn-ghost" id="reportIssueBtn" style="margin-top:16px;">Report an Issue</button>
+    <button class="btn btn-ghost" id="cancelMatchedBtn" style="margin-top:8px;">Cancel Ride</button>
+  </div>
+
+  <!-- SCREEN 6: Rate the mechanic -->
+  <div id="screen-rating" class="screen hidden">
+    <h2 style="text-align:center; margin-top:40px;">How was the service?</h2>
+    <p class="eta-note" style="margin:8px 0 24px;">Job completed — rate your mechanic</p>
+    <div id="starRow" style="display:flex; justify-content:center; gap:10px; font-size:36px; margin-bottom:28px;">
+      <span class="star" data-value="1">☆</span>
+      <span class="star" data-value="2">☆</span>
+      <span class="star" data-value="3">☆</span>
+      <span class="star" data-value="4">☆</span>
+      <span class="star" data-value="5">☆</span>
+    </div>
+    <button class="btn btn-primary" id="submitRatingBtn">Submit Rating</button>
+    <button class="btn btn-ghost" id="skipRatingBtn">Skip</button>
+  </div>
+
+  <!-- SCREEN 7: Review history -->
+  <div id="screen-reviews" class="screen hidden">
+    <h2 style="text-align:center; margin-top:20px;">Your Reviews</h2>
+    <div id="reviewsList" style="margin-top:16px;"></div>
+    <button class="btn btn-ghost" id="backFromReviewsBtn" style="margin-top:24px;">Back</button>
+  </div>
+
+</div>
+
+<!-- Firebase SDKs (compat, easier for find-and-replace edits) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="../maps-config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

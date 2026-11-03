@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mechigo Admin</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Blocks phone/tablet screens — admin is desktop only -->
+<div id="mobileBlock">
+  <div class="icon">🖥️</div>
+  <h2>Desktop Required</h2>
+  <p>The Mechigo Admin Panel is built for larger screens. Please open this on a laptop or desktop computer.</p>
+</div>
+
+<!-- Login -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <h1>Mechigo Admin</h1>
+    <p>Sign in with your admin account</p>
+    <input type="email" id="adminEmail" placeholder="admin@mechigo.com">
+    <input type="password" id="adminPassword" placeholder="Password">
+    <button class="btn" id="adminLoginBtn">Sign In</button>
+    <p class="login-error" id="loginError">Invalid email or password.</p>
+  </div>
+</div>
+
+<!-- Admin App -->
+<div id="adminApp">
+  <div class="layout">
+    <div class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">M</div>
+        <div class="brand-name">Mechigo<span class="tag">ADMIN PANEL</span></div>
+      </div>
+      <div class="nav-item active" data-panel="overview">📊 Overview</div>
+      <div class="nav-item" data-panel="mechanics">🔧 Mechanic Verification</div>
+      <div class="nav-item" data-panel="requests">📋 Service Requests</div>
+      <div class="nav-item" data-panel="sos">🚨 SOS Alerts</div>
+      <div class="nav-item" data-panel="disputes">⚖️ Disputes</div>
+      <div class="nav-item" data-panel="commissions">💵 Commission Approvals</div>
+      <div class="nav-item" data-panel="bonuses">🏆 Bonus Claims</div>
+      <div class="nav-item" id="logoutBtn" style="margin-top:auto;">↩ Sign Out</div>
+    </div>
+
+    <div class="main">
+      <!-- Overview -->
+      <div class="panel active" id="panel-overview">
+        <div class="main-header">
+          <div><h1>Overview</h1><div class="sub">Live platform snapshot</div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-card"><div class="value mono" id="statTotalMechanics">0</div><div class="label">Total Mechanics</div></div>
+          <div class="stat-card"><div class="value mono" id="statPendingVerification">0</div><div class="label">Pending Verification</div></div>
+          <div class="stat-card"><div class="value mono" id="statActiveRequests">0</div><div class="label">Active Requests</div></div>
+          <div class="stat-card"><div class="value mono" id="statOpenSos">0</div><div class="label">Open SOS Alerts</div></div>
+          <div class="stat-card"><div class="value mono" id="statFlagged">0</div><div class="label">Flagged Mechanics</div></div>
+        </div>
+
+        <div class="stat-card" style="max-width:480px; margin-top:8px;">
+          <div class="label" style="margin-bottom:10px;">Fare & Commission Settings</div>
+
+          <label class="field-label">Platform Commission (%)</label>
+          <input type="number" id="commissionInput" min="0" max="100" placeholder="15">
+
+          <label class="field-label">Base Arrival Fee (Rs)</label>
+          <input type="number" id="baseArrivalFeeInput" placeholder="150">
+
+          <label class="field-label">Per-KM Rate (Rs/km)</label>
+          <input type="number" id="perKmRateInput" placeholder="25">
+
+          <label class="field-label">Puncture Extra (Rs)</label>
+          <input type="number" id="punctureExtraInput" placeholder="150">
+
+          <label class="field-label">Battery Extra (Rs)</label>
+          <input type="number" id="batteryExtraInput" placeholder="150">
+
+          <label class="field-label">Petrol Delivery Service Fee (Rs)</label>
+          <input type="number" id="petrolServiceFeeInput" placeholder="100">
+
+          <label class="field-label">Towing Base Fee (Rs)</label>
+          <input type="number" id="towingBaseFeeInput" placeholder="400">
+
+          <label class="field-label">Towing Per-KM Rate (Rs/km)</label>
+          <input type="number" id="towingPerKmRateInput" placeholder="60">
+
+          <label class="field-label">Premium/AC Tow Multiplier</label>
+          <input type="number" step="0.1" id="premiumTowMultiplierInput" placeholder="1.4">
+
+          <label class="field-label">Ride Bonus Amount (Rs)</label>
+          <input type="number" id="rideBonusAmountInput" placeholder="1000">
+
+          <label class="field-label">Ride Bonus Milestone (jobs)</label>
+          <input type="number" id="rideBonusMilestoneInput" placeholder="50">
+
+          <label class="field-label">Review Bonus Amount (Rs)</label>
+          <input type="number" id="reviewBonusAmountInput" placeholder="1000">
+
+          <label class="field-label">Review Bonus Milestone (positive reviews)</label>
+          <input type="number" id="reviewBonusMilestoneInput" placeholder="50">
+
+          <label class="field-label">Request Expiry (minutes)</label>
+          <input type="number" id="requestExpiryMinutesInput" placeholder="2">
+
+          <button class="btn-sm btn-approve" id="saveCommissionBtn" style="margin-top:12px;">Save All Settings</button>
+        </div>
+      </div>
+
+      <!-- Mechanic Verification -->
+      <div class="panel" id="panel-mechanics">
+        <div class="main-header">
+          <div><h1>Mechanic Verification</h1><div class="sub">Review CNIC and documents before approving</div></div>
+        </div>
+        <table>
+          <thead><tr><th>Name</th><th>Phone</th><th>Specialty</th><th>Vehicle</th><th>Email</th><th>Rating</th><th>Status</th><th>Documents</th><th>Action</th></tr></thead>
+          <tbody id="mechanicsTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Service Requests -->
+      <div class="panel" id="panel-requests">
+        <div class="main-header">
+          <div><h1>Service Requests</h1><div class="sub">All customer requests, live</div></div>
+        </div>
+        <table>
+          <thead><tr><th>Job ID</th><th>Problem</th><th>Customer</th><th>Mechanic</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="requestsTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- SOS -->
+      <div class="panel" id="panel-sos">
+        <div class="main-header">
+          <div><h1>SOS Alerts</h1><div class="sub">Emergency alerts sent by customers</div></div>
+        </div>
+        <table>
+          <thead><tr><th>Alert ID</th><th>Customer</th><th>Location</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="sosTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Disputes -->
+      <div class="panel" id="panel-disputes">
+        <div class="main-header">
+          <div><h1>Disputes</h1><div class="sub">Complaints between customers and mechanics</div></div>
+        </div>
+        <table>
+          <thead><tr><th>Dispute ID</th><th>Job ID</th><th>Filed By</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="disputesTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Commission Approvals -->
+      <div class="panel" id="panel-commissions">
+        <div class="main-header">
+          <div><h1>Commission Approvals</h1><div class="sub">Mechanic commission payment proofs</div></div>
+        </div>
+        <table>
+          <thead><tr><th>Mechanic</th><th>Amount</th><th>Transaction ID</th><th>Screenshot</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="commissionsTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Bonus Claims -->
+      <div class="panel" id="panel-bonuses">
+        <div class="main-header">
+          <div><h1>Bonus Claims</h1><div class="sub">Ride & review milestone bonuses to pay out</div></div>
+        </div>
+        <table>
+          <thead><tr><th>Mechanic</th><th>Type</th><th>Amount</th><th>Bank Details</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="bonusesTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="stamp-overlay" id="stampOverlay">
+  <div class="stamp" id="stampEl">APPROVED</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

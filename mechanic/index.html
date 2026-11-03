@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mechigo Mechanic — Job Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <div class="brand-name">Mechigo<span class="tag">Mechanic</span></div>
+    </div>
+    <div id="topbarStatus" class="mono" style="font-size:12px;color:var(--muted);"></div>
+  </div>
+
+  <!-- SCREEN 1: Phone entry -->
+  <div id="screen-phone" class="screen">
+    <div class="auth-hero">
+      <h1>Join Mechigo as a<br>Verified Mechanic</h1>
+      <p>Get job requests near you. Free to start.</p>
+    </div>
+    <label class="field-label">Mobile Number</label>
+    <div class="phone-input-row">
+      <div class="country-code">🇵🇰 +92</div>
+      <input type="tel" id="phoneInput" placeholder="300 1234567" maxlength="10">
+    </div>
+    <div id="recaptcha-container"></div>
+    <button class="btn btn-primary" id="sendOtpBtn">Send Code</button>
+  </div>
+
+  <!-- SCREEN 2: OTP -->
+  <div id="screen-otp" class="screen hidden">
+    <div class="auth-hero">
+      <h1>Enter the code</h1>
+      <p>Sent via SMS to <span id="otpPhoneDisplay" class="mono"></span></p>
+    </div>
+    <div class="otp-row">
+      <input class="otp-digit" maxlength="1" inputmode="numeric">
+      <input class="otp-digit" maxlength="1" inputmode="numeric">
+      <input class="otp-digit" maxlength="1" inputmode="numeric">
+      <input class="otp-digit" maxlength="1" inputmode="numeric">
+      <input class="otp-digit" maxlength="1" inputmode="numeric">
+      <input class="otp-digit" maxlength="1" inputmode="numeric">
+    </div>
+    <button class="btn btn-primary" id="verifyOtpBtn">Verify & Continue</button>
+  </div>
+
+  <!-- SCREEN 3: Profile setup (CNIC + email + photos) -->
+  <div id="screen-profile" class="screen hidden">
+    <h2 style="margin-bottom:18px;">Complete your profile</h2>
+
+    <label class="field-label">Full Name</label>
+    <input type="text" id="nameInput" placeholder="e.g. Imran Khalid">
+
+    <label class="field-label">Email Address</label>
+    <input type="email" id="emailInput" placeholder="you@example.com">
+
+    <label class="field-label">CNIC Number</label>
+    <input type="text" id="cnicInput" placeholder="42101-1234567-1" maxlength="15">
+
+    <label class="field-label">Specialty</label>
+    <select id="specialtyInput">
+      <option value="General">General Mechanic</option>
+      <option value="Engine">Engine Specialist</option>
+      <option value="Electrical">Electrical / Battery</option>
+      <option value="Tires">Tires & Puncture</option>
+    </select>
+
+    <label class="field-label">Your Vehicle Type</label>
+    <select id="mechVehicleTypeInput">
+      <option value="">Select vehicle type</option>
+      <option value="Bike">Bike</option>
+      <option value="Car">Car</option>
+      <option value="Rickshaw">Rickshaw</option>
+    </select>
+
+    <label class="field-label">Vehicle Name / Make</label>
+    <input type="text" id="mechVehicleNameInput" placeholder="e.g. Honda CD70">
+
+    <label class="field-label">Vehicle Model</label>
+    <input type="text" id="mechVehicleModelInput" placeholder="e.g. 2020">
+
+    <label class="field-label">Vehicle Colour</label>
+    <input type="text" id="mechVehicleColourInput" placeholder="e.g. Black">
+
+    <label class="field-label">Vehicle Registration Number</label>
+    <input type="text" id="mechVehicleRegInput" placeholder="e.g. LEA-1234">
+
+    <label class="field-label">Verification Documents</label>
+    <div class="upload-row">
+      <label class="upload-box" id="cnicUploadBox">
+        📄 CNIC Photo
+        <input type="file" id="cnicUpload" accept="image/*">
+      </label>
+      <label class="upload-box" id="profileUploadBox">
+        🧑 Profile Photo
+        <input type="file" id="profileUpload" accept="image/*">
+      </label>
+      <label class="upload-box" id="licenseUploadBox">
+        🪪 Driving Licence
+        <input type="file" id="licenseUpload" accept="image/*">
+      </label>
+    </div>
+
+    <button class="btn btn-primary" id="submitProfileBtn" style="margin-top:8px;">Submit for Verification</button>
+  </div>
+
+  <!-- SCREEN 4: Pending verification -->
+  <div id="screen-pending" class="screen hidden">
+    <div class="empty-state" style="margin-top:100px;">
+      <span class="icon">⏳</span>
+      <h2 style="margin-bottom:8px;">Under Review</h2>
+      <p style="color:var(--muted); font-size:14px; max-width:280px; margin:0 auto;">
+        Mechigo admin is verifying your CNIC and documents. This usually takes a few hours.
+        We've also sent a verification link to your email — please confirm it.
+      </p>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: Dashboard -->
+  <div id="screen-dashboard" class="screen hidden">
+    <button class="btn btn-ghost" id="walletBtn" style="margin-bottom:10px;">💰 My Wallet</button>
+
+    <div class="availability-bar">
+      <div class="availability-label">
+        Availability
+        <span class="sub" id="availabilitySub">Currently offline</span>
+      </div>
+      <label class="rocker">
+        <input type="checkbox" id="availabilityToggle">
+        <div class="rocker-track"></div>
+        <div class="rocker-knob" id="rockerKnob">OFF</div>
+      </label>
+    </div>
+
+    <div id="activeJobCard" class="ticket hidden" style="border-color: var(--success);">
+      <div class="ticket-id mono">ACTIVE JOB</div>
+      <div class="ticket-problem" id="activeJobProblem"></div>
+      <div class="ticket-distance">Customer: <span id="activeJobPhone" class="mono"></span></div>
+      <div id="activeJobMap" style="height: 220px; margin: 12px 0; border-radius: 8px;"></div>
+      <a href="#" id="navigateBtn" target="_blank" class="btn btn-ghost" style="display:block; text-align:center; text-decoration:none; margin-bottom:8px;">🧭 Navigate with Google Maps</a>
+      <div id="arrivalStatus" class="ticket-distance" style="margin-top:8px;">Calculating distance…</div>
+      <label class="field-label" style="margin-top:12px;">Cash Received (Rs)</label>
+      <input type="number" id="fareInput" placeholder="e.g. 800">
+      <button class="btn btn-accept" id="completeJobBtn" disabled>Mark Job Complete</button>
+      <button class="btn btn-ghost" id="reportIssueBtn">Report an Issue</button>
+    </div>
+
+    <div id="jobList">
+      <div class="empty-state" id="noJobsState">
+        <span class="icon">🔧</span>
+        <p>No job requests right now.<br>Go online to start receiving them.</p>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="value mono" id="statJobsToday">0</div>
+        <div class="label">Jobs Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="value mono" id="statEarnings">Rs 0</div>
+        <div class="label">Earnings Today</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 6: Suspended -->
+  <div id="screen-suspended" class="screen hidden">
+    <div class="empty-state" style="margin-top:100px;">
+      <span class="icon">🚫</span>
+      <h2 style="margin-bottom:8px;">Account Suspended</h2>
+      <p style="color:var(--muted); font-size:14px; max-width:280px; margin:0 auto;">
+        Your account has been suspended due to a commission payment issue. Contact Mechigo support to resolve this.
+      </p>
+    </div>
+  </div>
+
+  <div id="commissionLockOverlay" class="overlay-screen hidden">
+    <h2>Commission Payment Required</h2>
+    <p style="color:var(--muted); font-size:14px;">You owe Rs <span id="commissionOwedAmount" class="mono">0</span> commission from your last completed job. Submit payment proof to keep accepting jobs.</p>
+    <label class="field-label">Transaction ID</label>
+    <input type="text" id="commissionTxnInput" placeholder="e.g. TRX123456789">
+    <label class="field-label">Payment Screenshot</label>
+    <input type="file" id="commissionScreenshotInput" accept="image/*">
+    <button class="btn btn-primary" id="submitCommissionBtn" style="margin-top:12px;">Submit for Approval</button>
+  </div>
+
+  <div id="walletOverlay" class="overlay-screen hidden">
+    <h2>My Wallet</h2>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="value mono" id="walletRank">Mechanic</div><div class="label">Rank</div></div>
+      <div class="stat-card"><div class="value mono" id="walletJobsCompleted">0</div><div class="label">Total Jobs</div></div>
+    </div>
+    <div id="rideBonusBox" class="ticket hidden" style="border-color: var(--success);">
+      <div class="ticket-id mono">BONUS AVAILABLE</div>
+      <div class="ticket-problem">50 Rides Completed — Rs 1000 Bonus</div>
+      <button class="btn btn-accept" id="claimRideBonusBtn">Claim Bonus</button>
+    </div>
+    <div id="reviewBonusBox" class="ticket hidden" style="border-color: var(--success);">
+      <div class="ticket-id mono">BONUS AVAILABLE</div>
+      <div class="ticket-problem">50 Positive Reviews — Rs 1000 Bonus</div>
+      <button class="btn btn-accept" id="claimReviewBonusBtn">Claim Bonus</button>
+    </div>
+    <div id="bankDetailsForm" class="hidden" style="margin-top:12px;">
+      <label class="field-label">Bank Name</label>
+      <input type="text" id="bonusBankNameInput" placeholder="e.g. HBL">
+      <label class="field-label">Account Title</label>
+      <input type="text" id="bonusAccountTitleInput" placeholder="Account holder name">
+      <label class="field-label">Account Number / IBAN</label>
+      <input type="text" id="bonusAccountNumberInput" placeholder="e.g. PK00HABB0000000000000000">
+      <button class="btn btn-primary" id="submitBonusClaimBtn">Submit Claim</button>
+      <button class="btn btn-ghost" id="cancelBonusClaimBtn">Cancel</button>
+    </div>
+    <button class="btn btn-ghost" id="closeWalletBtn" style="margin-top:16px;">Close</button>
+  </div>
+
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="../maps-config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

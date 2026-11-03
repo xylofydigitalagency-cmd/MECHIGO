@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /customers/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /mechanics/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && (
+        request.auth.uid == uid
+        || isAdmin()
+        || (
+          // Customers are allowed to update ONLY rating-related fields when leaving a review
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'flagged', 'positiveReviewCount'])
+        )
+      );
+    }
+
+    match /requests/{requestId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.customerId == request.auth.uid
+        && (
+          !exists(/databases/$(database)/documents/customers/$(request.auth.uid))
+          || get(/databases/$(database)/documents/customers/$(request.auth.uid)).data.get('activeRequestId', null) == null
+        );
+
+      allow update: if request.auth != null && (
+        (
+          request.resource.data.status != 'completed'
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['fare'])
+        )
+        ||
+        (
+          resource.data.status == 'accepted'
+          && request.resource.data.status == 'completed'
+          && resource.data.mechanicId == request.auth.uid
+          && request.resource.data.fare is number
+          && request.resource.data.fare > 0
+          && get(/databases/$(database)/documents/mechanics/$(request.auth.uid)).data.location.lat > resource.data.location.lat - 0.0009
+          && get(/databases/$(database)/documents/mechanics/$(request.auth.uid)).data.location.lat < resource.data.location.lat + 0.0009
+          && get(/databases/$(database)/documents/mechanics/$(request.auth.uid)).data.location.lng > resource.data.location.lng - 0.0011
+          && get(/databases/$(database)/documents/mechanics/$(request.auth.uid)).data.location.lng < resource.data.location.lng + 0.0011
+        )
+        ||
+        (
+          isAdmin()
+          && (resource.data.status == 'accepted' || resource.data.status == 'in_progress')
+          && request.resource.data.status == 'completed'
+          && request.resource.data.fare is number
+          && request.resource.data.fare > 0
+        )
+        ||
+        (
+          // Customer leaving a star rating after the job is already completed
+          resource.data.status == 'completed'
+          && resource.data.customerId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['customerRating'])
+        )
+      );
+    }
+
+    match /disputes/{id} {
+      allow create: if request.auth != null;
+      allow read: if isAdmin();
+      allow update: if isAdmin();
+    }
+
+    match /sos_alerts/{id} {
+      allow create: if true;
+      allow read: if isAdmin();
+      allow update: if isAdmin();
+    }
+
+    match /settings/{id} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    match /commissionSubmissions/{id} {
+      allow create: if request.auth != null && request.resource.data.mechanicId == request.auth.uid;
+      allow read: if request.auth != null && (resource.data.mechanicId == request.auth.uid || isAdmin());
+      allow update: if isAdmin();
+    }
+
+    match /bonusClaims/{id} {
+      allow create: if request.auth != null && request.resource.data.mechanicId == request.auth.uid;
+      allow read: if request.auth != null && (resource.data.mechanicId == request.auth.uid || isAdmin());
+      allow update: if isAdmin();
+    }
+  }
+}
